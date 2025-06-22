@@ -63,7 +63,9 @@ function GameBoard() {
         board.map((row) => row.map((cell) => cell.addValue(0)))
     };
 
-    return { displayBoard, fillCell, resetBoard, checkTie, checkWin, checkEmptyCell };
+    const getBoard = () => board;
+
+    return { displayBoard, fillCell, resetBoard, checkTie, checkWin, checkEmptyCell, getBoard };
 }
 
 function Cell() {
@@ -113,9 +115,46 @@ function GameFlow(name1 = 'player1', name2 = 'player2') {
     };
 
     return { playRound }
-
 }
+
+function ScreenController() {
+    const game = GameFlow();
+    const board = GameBoard();
+    const boardDisplay = document.querySelector('.board');
+
+    function updateScreen() {
+        //display cells and values
+        for (let i = 0; i < 3; i++) {
+            for (let j = 0; j < 3; j++) {
+                const cell = document.createElement('button');
+                cell.dataset.row = i;
+                cell.dataset.column = j;
+                cell.textContent = board.getBoard()[i][j].getValue();
+                boardDisplay.appendChild(cell);
+            }
+        }
+
+    }
+
+    function eventHandler(e) {
+        const selectedCol = e.target.dataset.column;
+        const selectedRow = e.target.dataset.row;
+
+        if (!selectedCol && !selectedRow) return;
+
+        game.playRound(selectedRow, selectedCol);
+    }
+    boardDisplay.addEventListener('click', eventHandler);
+
+    updateScreen();
+}
+
+const PlayerState = (function () {
+    //TODO
+})();
 
 const board = GameBoard();
 
 const game = GameFlow();
+
+const screen = ScreenController();
