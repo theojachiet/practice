@@ -46,6 +46,7 @@ function GameBoard() {
         if (board[0][0].getValue() === board[1][1].getValue() && board[0][0].getValue() === board[2][2].getValue() && board[0][0].getValue() !== 0) return true;
         if (board[0][2].getValue() === board[1][1].getValue() && board[0][2].getValue() === board[2][0].getValue() && board[0][2].getValue() !== 0) return true;
 
+        return false;
     };
 
     const checkTie = () => {
@@ -80,8 +81,8 @@ function Cell() {
     return { getValue, addValue };
 }
 
-function GameFlow(name1 = 'player1', name2 = 'player2') {
-    const board = GameBoard();
+function GameFlow(boardImport, name1 = 'player1', name2 = 'player2') {
+    const board = boardImport;
     const players = [{ name: name1, token: 1 }, { name: name2, token: 2 }];
     let currentPlayer = players[0];
 
@@ -114,26 +115,50 @@ function GameFlow(name1 = 'player1', name2 = 'player2') {
         }
     };
 
-    return { playRound }
+    const getCurrentPlayer = () => currentPlayer;
+
+    return { playRound, getCurrentPlayer }
 }
 
 function ScreenController() {
-    const game = GameFlow();
     const board = GameBoard();
+    const game = GameFlow(board);
     const boardDisplay = document.querySelector('.board');
 
-    function updateScreen() {
-        //display cells and values
-        for (let i = 0; i < 3; i++) {
-            for (let j = 0; j < 3; j++) {
-                const cell = document.createElement('button');
-                cell.dataset.row = i;
-                cell.dataset.column = j;
-                cell.textContent = board.getBoard()[i][j].getValue();
-                boardDisplay.appendChild(cell);
-            }
+    const updateScreen = () => {
+        //Update turn text
+        const turnText = document.querySelector('.turn');
+        let currentPlayer = game.getCurrentPlayer();
+
+        //Reset Board
+        boardDisplay.textContent = '';
+
+        console.log(board.checkWin());
+        if (board.checkWin()) {
+            turnText.textContent = `Game Over ! ${currentPlayer.name} wins !`;
+        } else if (board.checkTie()) {
+            turnText.textContent = `Game Over ! It's a tie !`;
+        } else {
+            turnText.textContent = `It's ${currentPlayer.name}'s turn !`;
         }
 
+        //display cells and values
+        board.getBoard().forEach((row, indexRow) =>
+            row.forEach((cell, indexCol) => {
+                const cellButton = document.createElement('button');
+                cellButton.dataset.row = indexRow;
+                cellButton.dataset.column = indexCol;
+
+                if (cell.getValue() === 2) {
+                    cellButton.textContent = 'O';
+                } else if (cell.getValue() === 1) {
+                    cellButton.textContent = 'X';
+                } else if (cell.getValue() === 0) {
+                    cellButton.textContent = '';
+                }
+
+                boardDisplay.appendChild(cellButton);
+            }));
     }
 
     function eventHandler(e) {
@@ -143,6 +168,7 @@ function ScreenController() {
         if (!selectedCol && !selectedRow) return;
 
         game.playRound(selectedRow, selectedCol);
+        updateScreen();
     }
     boardDisplay.addEventListener('click', eventHandler);
 
@@ -152,9 +178,5 @@ function ScreenController() {
 const PlayerState = (function () {
     //TODO
 })();
-
-const board = GameBoard();
-
-const game = GameFlow();
 
 const screen = ScreenController();
