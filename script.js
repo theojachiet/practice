@@ -9,8 +9,8 @@ function GameBoard() {
     }
 
     const fillCell = (row, column, token) => {
-        if (board[row][column].getValue() !== 0) {
-
+        if (checkWin() || checkTie()) {
+            return; //Can't drawn when game is over
         }
         board[row][column].addValue(token);
     };
@@ -130,7 +130,7 @@ function ScreenController() {
         const turnText = document.querySelector('.turn');
         let currentPlayer = game.getCurrentPlayer();
 
-        //Reset Board
+        //Reset Board to not draw previous values
         boardDisplay.textContent = '';
 
         console.log(board.checkWin());
@@ -175,8 +175,21 @@ function ScreenController() {
     updateScreen();
 }
 
+function DialogHandler() {
+    const dialog = document.querySelector('dialog');
+    // const closeButton = document.querySelector('.close');
+    const startButton = document.querySelector('.start');
+
+    startButton.addEventListener('click', () => {
+        const player1name = document.querySelector('#player1');
+        const player2name = document.querySelector('#player2');
+    });
+    dialog.showModal();
+}
+
 const PlayerState = (function () {
     //TODO
 })();
 
 const screen = ScreenController();
+const dialog = DialogHandler();
