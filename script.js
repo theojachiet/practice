@@ -115,15 +115,21 @@ function GameFlow(boardImport, name1 = 'player1', name2 = 'player2') {
         }
     };
 
+    const resetGame = () => {
+        board.resetBoard();
+        currentPlayer = players[0];
+    };
+
     const getCurrentPlayer = () => currentPlayer;
 
-    return { playRound, getCurrentPlayer }
+    return { playRound, getCurrentPlayer, resetGame }
 }
 
 function ScreenController() {
     const board = GameBoard();
-    const game = GameFlow(board);
+    const game = GameFlow(board, PlayerState.getPlayer1(), PlayerState.getPlayer2());
     const boardDisplay = document.querySelector('.board');
+    const resetButton = document.querySelector('.reset button');
 
     const updateScreen = () => {
         //Update turn text
@@ -171,6 +177,12 @@ function ScreenController() {
         updateScreen();
     }
     boardDisplay.addEventListener('click', eventHandler);
+    resetButton.addEventListener('click', resetGame);
+
+    function resetGame() {
+        game.resetGame();
+        updateScreen();
+    }
 
     updateScreen();
 }
@@ -180,16 +192,32 @@ function DialogHandler() {
     // const closeButton = document.querySelector('.close');
     const startButton = document.querySelector('.start');
 
-    startButton.addEventListener('click', () => {
-        const player1name = document.querySelector('#player1');
-        const player2name = document.querySelector('#player2');
-    });
     dialog.showModal();
+
+    startButton.addEventListener('click', (event) => {
+        let player1name = document.querySelector('#player1').value;
+        let player2name = document.querySelector('#player2').value;
+
+        PlayerState.setNames(player1name, player2name);
+        ScreenController();
+        event.preventDefault();
+        dialog.close();
+    });
 }
 
 const PlayerState = (function () {
-    //TODO
+    let player1;
+    let player2;
+
+    const setNames = (name1, name2) => {
+        player1 = name1;
+        player2 = name2;
+    };
+
+    const getPlayer1 = () => player1;
+    const getPlayer2 = () => player2;
+
+    return {setNames, getPlayer1, getPlayer2};
 })();
 
-const screen = ScreenController();
 const dialog = DialogHandler();
